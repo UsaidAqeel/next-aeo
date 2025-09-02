@@ -8,9 +8,6 @@ interface RankingData {
   position?: number;
 }
 
-export const dynamic = 'force-static'
-
-
 async function getRankingsData(): Promise<RankingData[]> {
   try {
     const response = await fetch(
