@@ -1,6 +1,14 @@
 import { Suspense } from "react";
 
-async function getRankingsData(): Promise<any[]> {
+interface RankingData {
+  id?: string;
+  name: string;
+  database_model: string;
+  database_id: string;
+  position?: number;
+}
+
+async function getRankingsData(): Promise<RankingData[]> {
   try {
     const response = await fetch(
       "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-rankings",
@@ -77,9 +85,9 @@ async function RankingsTable() {
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <span
                   className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    ranking.position <= 3
+                    (ranking.position || index + 1) <= 3
                       ? "bg-green-100 text-green-800"
-                      : ranking.position <= 10
+                      : (ranking.position || index + 1) <= 10
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-gray-100 text-gray-800"
                   }`}
@@ -103,9 +111,6 @@ async function RankingsTable() {
     </div>
   );
 }
-
-// ✅ This makes it SSR
-export const dynamic = "force-dynamic"; // ensures it's rendered on every request
 
 export default async function Page() {
   return (
