@@ -8,6 +8,9 @@ interface RankingData {
   position?: number;
 }
 
+export const dynamic = 'force-static'
+
+
 async function getRankingsData(): Promise<RankingData[]> {
   try {
     const response = await fetch(
@@ -21,6 +24,7 @@ async function getRankingsData(): Promise<RankingData[]> {
           startDate: "2025-08-30",
           endDate: "2025-09-01",
         }),
+        cache: 'no-store', // Ensures fresh data on each request
       }
     );
 
@@ -49,9 +53,8 @@ function RankingsTableSkeleton() {
   );
 }
 
-async function RankingsTable() {
-  const rankings = await getRankingsData();
-
+// Remove async from this component since it's receiving data as props
+function RankingsTable({ rankings }: { rankings: RankingData[] }) {
   if (rankings.length === 0) {
     return (
       <div className="text-center py-8">
@@ -81,7 +84,7 @@ async function RankingsTable() {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {rankings.map((ranking, index) => (
-            <tr key={ranking.id || index} className="hover:bg-gray-50">
+            <tr key={ranking.id || `ranking-${index}`} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <span
                   className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -92,7 +95,7 @@ async function RankingsTable() {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  {index + 1}
+                  {ranking.position || index + 1}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -112,13 +115,21 @@ async function RankingsTable() {
   );
 }
 
+// This is the async Server Component
+async function RankingsContent({rankings}: {rankings: RankingData[]}) {
+  
+  return <RankingsTable rankings={rankings} />;
+}
+
 export default async function Page() {
+  const rankings = await getRankingsData()
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            SEO Rankings Dashboard
+            DB Rankings Dashboard
           </h1>
           <p className="text-lg text-gray-600">
             Real-time search engine rankings data
@@ -136,8 +147,7 @@ export default async function Page() {
           </div>
 
           <Suspense fallback={<RankingsTableSkeleton />}>
-            {/* Runs on the server before sending HTML */}
-            <RankingsTable />
+            <RankingsContent rankings={rankings} />
           </Suspense>
         </div>
       </div>
