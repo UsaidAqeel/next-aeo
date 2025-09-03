@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import ClientWidget from "@/components/new";
 
 interface RankingData {
   id?: string;
@@ -74,7 +75,7 @@ function RankingsTable({ rankings }: { rankings: RankingData[] }) {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
               Model
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+            <th className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               ID
             </th>
           </tr>
@@ -146,6 +147,8 @@ export default async function Page() {
           <Suspense fallback={<RankingsTableSkeleton />}>
             <RankingsContent rankings={rankings} />
           </Suspense>
+
+          <ClientWidget />
         </div>
       </div>
     </div>
